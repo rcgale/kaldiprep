@@ -8,6 +8,7 @@ setup(
     packages=['kaldiprep'],
     url='https://repo.cslu.ohsu.edu/galer/kaldiprep',
     install_requires=[
+        'sortedcontainers'
     ],
 )
 
