@@ -17,11 +17,26 @@ Utterance = collections.namedtuple(
 )
 
 
+Segment = collections.namedtuple(
+    "Segment", [
+        "segment_id",
+        "utterance_id",
+        "speaker_id",
+        "transcript",
+        "filename",
+        "start_time",
+        "end_time",
+    ]
+)
+
+
 def write_data_set(utterances: List[Utterance], path: str):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    transcripts, utterance_to_speaker, speaker_to_utterance, utterance_to_wav = _process_utterances(utterances)
+
+    transcripts, utterance_to_speaker, speaker_to_utterance, utterance_to_wav, segments = \
+        _process_utterances(utterances)
 
     text = _text_lines(transcripts)
     _write_file("text", text, path)
@@ -34,6 +49,10 @@ def write_data_set(utterances: List[Utterance], path: str):
 
     spk2utt = _spk2utt_lines(speaker_to_utterance)
     _write_file("spk2utt", spk2utt, path)
+
+    if len(segments):
+        segments_lines = _segments_lines(segments)
+        _write_file("segments", segments_lines, path)
 
 
 def _write_file(filename, lines, path):
@@ -55,6 +74,16 @@ def _wav_scp_lines(utterance_to_wav):
         yield "{utterance_id} {wav}".format(
             utterance_id=utterance_id,
             wav=utterance_to_wav[utterance_id]
+        )
+
+
+def _segments_lines(segments: List[Segment]):
+    for segment in segments:
+        yield "{segment_id} {utterance_id} {start_time} {end_time}".format(
+            segment_id=segment.segment_id,
+            utterance_id=segment.utterance_id,
+            start_time=segment.start_time,
+            end_time=segment.end_time,
         )
 
 
@@ -81,6 +110,7 @@ def _process_utterances(utterances):
     utterance_to_speaker = SortedDict()
     speaker_to_utterance = SortedDict()
     utterance_to_wav = SortedDict()
+    segments = SortedSet()
 
     sorted_utterances = sorted(utterances, key=lambda u: u.speaker_id)
     grouped_by_speaker = itertools.groupby(sorted_utterances, lambda u: u.speaker_id)
@@ -90,12 +120,18 @@ def _process_utterances(utterances):
         sorted_speaker_utterances = SortedSet()
 
         for utterance in speaker_utterances:
-            transcripts[utterance.utterance_id] = utterance.transcript
+            segment_id = utterance.segment_id \
+                if hasattr(utterance, "segment_id") \
+                else utterance.utterance_id
+            transcripts[segment_id] = utterance.transcript
             utterance_to_speaker[utterance.utterance_id] = speaker_id
             utterance_to_wav[utterance.utterance_id] = utterance.filename
             sorted_speaker_utterances.add(utterance.utterance_id)
+            if hasattr(utterance, "segment_id"):
+                segments.add(utterance)
 
         if len(sorted_speaker_utterances) > 0:
             speaker_to_utterance[speaker_id] = sorted_speaker_utterances
 
-    return transcripts, utterance_to_speaker, speaker_to_utterance, utterance_to_wav
+    return transcripts, utterance_to_speaker, speaker_to_utterance, utterance_to_wav, segments
+
