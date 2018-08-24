@@ -124,9 +124,9 @@ def _process_utterances(utterances):
                 if hasattr(utterance, "segment_id") \
                 else utterance.utterance_id
             transcripts[segment_id] = utterance.transcript
-            utterance_to_speaker[utterance.utterance_id] = speaker_id
+            utterance_to_speaker[segment_id] = speaker_id
             utterance_to_wav[utterance.utterance_id] = utterance.filename
-            sorted_speaker_utterances.add(utterance.utterance_id)
+            sorted_speaker_utterances.add(segment_id)
             if hasattr(utterance, "segment_id"):
                 segments.add(utterance)
 
