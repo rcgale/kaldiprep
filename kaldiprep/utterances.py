@@ -1,5 +1,6 @@
 import collections
 import os
+import wave
 from typing import List
 
 import itertools
@@ -126,12 +127,27 @@ def _process_utterances(utterances):
             transcripts[segment_id] = utterance.transcript
             utterance_to_speaker[segment_id] = speaker_id
             utterance_to_wav[utterance.utterance_id] = utterance.filename
-            sorted_speaker_utterances.add(segment_id)
-            if hasattr(utterance, "segment_id"):
-                segments.add(utterance)
+            segment = _get_segment_from_utterance(utterance)
+            segments.add(segment)
 
         if len(sorted_speaker_utterances) > 0:
             speaker_to_utterance[speaker_id] = sorted_speaker_utterances
 
     return transcripts, utterance_to_speaker, speaker_to_utterance, utterance_to_wav, segments
 
+
+def _get_segment_from_utterance(utterance: Utterance):
+    if hasattr(utterance, "segment_id"):
+        return utterance
+
+    with wave.open(utterance.filename, 'r') as w:
+        length_seconds = round(1.0 * w.getnframes() / w.getframerate(), 1)
+        return Segment(
+            segment_id="{}_0".format(utterance.utterance_id),
+            utterance_id=utterance.utterance_id,
+            speaker_id=utterance.speaker_id,
+            transcript=utterance.transcript,
+            filename=utterance.filename,
+            start_time=0.0,
+            end_time=length_seconds
+        )
