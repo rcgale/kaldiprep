@@ -143,7 +143,7 @@ def _get_segment_from_utterance(utterance: Utterance):
     with wave.open(utterance.filename, 'r') as w:
         length_seconds = round(1.0 * w.getnframes() / w.getframerate(), 1)
         return Segment(
-            segment_id="{}_0".format(utterance.utterance_id),
+            segment_id=utterance.utterance_id,
             utterance_id=utterance.utterance_id,
             speaker_id=utterance.speaker_id,
             transcript=utterance.transcript,
