@@ -31,7 +31,7 @@ Segment = collections.namedtuple(
 )
 
 
-def write_data_set(utterances: List[Utterance], path: str):
+def write_data_set(utterances: List[Utterance], path: str, *_, wav_format="{}"):
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -42,7 +42,7 @@ def write_data_set(utterances: List[Utterance], path: str):
     text = _text_lines(transcripts)
     _write_file("text", text, path)
 
-    wav_scp = _wav_scp_lines(utterance_to_wav)
+    wav_scp = _wav_scp_lines(utterance_to_wav, wav_format=wav_format)
     _write_file("wav.scp", wav_scp, path)
 
     utt2spk = _utt2spk_lines(speaker_to_utterance, utterance_to_speaker)
@@ -70,11 +70,11 @@ def _text_lines(transcripts):
         )
 
 
-def _wav_scp_lines(utterance_to_wav):
-    for utterance_id in utterance_to_wav:
+def _wav_scp_lines(utterance_to_wav, wav_format):
+    for utterance_id, wav_path in utterance_to_wav.items():
         yield "{utterance_id} {wav}".format(
             utterance_id=utterance_id,
-            wav=utterance_to_wav[utterance_id]
+            wav=wav_format.format(wav_path)
         )
 
 
