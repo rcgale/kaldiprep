@@ -112,6 +112,7 @@ def _process_utterances(utterances):
     speaker_to_utterance = SortedDict()
     utterance_to_wav = SortedDict()
     segments = SortedSet()
+    has_no_segments = SortedSet()
 
     sorted_utterances = sorted(utterances, key=lambda u: u.speaker_id)
     grouped_by_speaker = itertools.groupby(sorted_utterances, lambda u: u.speaker_id)
@@ -121,18 +122,23 @@ def _process_utterances(utterances):
         sorted_speaker_utterances = SortedSet()
 
         for utterance in speaker_utterances:
-            segment_id = utterance.segment_id \
-                if hasattr(utterance, "segment_id") \
-                else utterance.utterance_id
+            if hasattr(utterance, "segment_id"):
+                segment_id = utterance.segment_id
+                segments.add(utterance)
+            else:
+                segment_id = utterance.utterance_id
+                has_no_segments.add(utterance)
             sorted_speaker_utterances.add(segment_id)
             transcripts[segment_id] = utterance.transcript
             utterance_to_speaker[segment_id] = speaker_id
             utterance_to_wav[utterance.utterance_id] = utterance.filename
-            segment = _get_segment_from_utterance(utterance)
-            segments.add(segment)
 
         if len(sorted_speaker_utterances) > 0:
             speaker_to_utterance[speaker_id] = sorted_speaker_utterances
+
+    if len(segments) and len(has_no_segments):
+        generated_segments = [_get_segment_from_utterance(utterance) for utterance in has_no_segments]
+        segments.update(generated_segments)
 
     return transcripts, utterance_to_speaker, speaker_to_utterance, utterance_to_wav, segments
 
