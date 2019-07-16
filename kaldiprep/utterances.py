@@ -40,20 +40,20 @@ def write_data_set(utterances: List[Utterance], path: str, *_, wav_format="{}", 
         _process_utterances(utterances)
 
     text = _text_lines(transcripts)
-    _write_file("text", text, path)
+    _write_file("text", text, path, encoding=encoding)
 
     wav_scp = _wav_scp_lines(utterance_to_wav, wav_format=wav_format)
-    _write_file("wav.scp", wav_scp, path)
+    _write_file("wav.scp", wav_scp, path, encoding=encoding)
 
     utt2spk = _utt2spk_lines(speaker_to_utterance, utterance_to_speaker)
-    _write_file("utt2spk", utt2spk, path)
+    _write_file("utt2spk", utt2spk, path, encoding=encoding)
 
     spk2utt = _spk2utt_lines(speaker_to_utterance)
-    _write_file("spk2utt", spk2utt, path)
+    _write_file("spk2utt", spk2utt, path, encoding=encoding)
 
     if len(segments):
         segments_lines = _segments_lines(segments)
-        _write_file("segments", segments_lines, path)
+        _write_file("segments", segments_lines, path, encoding=encoding)
 
 
 def _write_file(filename, lines, path, encoding):
