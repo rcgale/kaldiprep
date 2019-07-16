@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='kaldiprep',
-    version='0.4.0',
+    version='0.4.1',
     author='Robert Gale',
     author_email='galer@ohsu.edu',
     packages=['kaldiprep'],
