@@ -31,7 +31,7 @@ Segment = collections.namedtuple(
 )
 
 
-def write_data_set(utterances: List[Utterance], path: str, *_, wav_format="{}"):
+def write_data_set(utterances: List[Utterance], path: str, *_, wav_format="{}", encoding=None):
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -56,8 +56,8 @@ def write_data_set(utterances: List[Utterance], path: str, *_, wav_format="{}"):
         _write_file("segments", segments_lines, path)
 
 
-def _write_file(filename, lines, path):
-    with open(os.path.join(path, filename), "w") as file:
+def _write_file(filename, lines, path, encoding):
+    with open(os.path.join(path, filename), "w", encoding=encoding) as file:
         for line in lines:
             print(line, file=file)
 
