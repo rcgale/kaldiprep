@@ -18,6 +18,7 @@ def _iterate_entries(entries):
     for word, pronunciation in sorted(entries):
         if isinstance(pronunciation, str):
             yield word, pronunciation
+            continue
 
         try:
             for p in pronunciation:
