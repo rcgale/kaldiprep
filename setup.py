@@ -1,6 +1,6 @@
-from distutils.core import setup
+import setuptools
 
-setup(
+setuptools.setup(
     name='kaldiprep',
     version='0.5.1',
     author='Robert Gale',
